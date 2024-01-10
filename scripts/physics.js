@@ -3,7 +3,7 @@ const INITIAL       = 10,
     GRAVITY       =  0,
     REBOUND_RATIO =  0.5,
     DAMPING_RATIO =  0.995,
-    MAX_SPEED = 6;
+    MAX_SPEED = 10;
 
 //Globals
 var timer, t = 0,
@@ -20,6 +20,7 @@ function init(){
   window.setInterval(update_soccer, 10);
   window.setInterval(update_p1, 10);
   window.setInterval(update_p2, 10);
+  window.setInterval(collisionDetection, 10)
 }
 
 function addSoccer(x, y, w, h){
@@ -114,14 +115,21 @@ function collisionDetection() {
   ) {
     var car_1_vx = objects[1].vx;
     var car_1_vy = objects[1].vy;
+    var car_2_vx = objects[2].vx;
+    var car_2_vy = objects[2].vy;
 
-    objects[1].vx = objects[2].vx;
-    objects[2].vx = car_1_vx;
+    objects[1].vx = (objects[2].vx * 0.7) - (car_1_vx * 0.5);
+    objects[2].vx = (car_1_vx * 0.7) - (car_2_vx * 0.5);
 
-    objects[1].vy = objects[2].vy;
-    objects[2].vy = car_1_vy;
+    objects[1].vy = (objects[2].vy & 0.7) - (car_1_vy* 0.5);
+    objects[2].vy = (car_1_vy * 0.7)- (car_2_vy * 0.5);
+
+
+
+    setTimeout(300)
   }
 }
+
 
 function update_soccer(){
     
@@ -145,7 +153,7 @@ function update_soccer(){
       objects[0].vy = -Math.abs(objects[0].vy) * REBOUND_RATIO;
     }
 
-    collisionDetection();
+    // collisionDetection();
 
     //Apply damping
     objects[0].vx *= DAMPING_RATIO;
@@ -205,7 +213,7 @@ function update_p1(){
     objects[1].deg = Math.atan2(objects[1].vy, objects[1].vx) * 180 / Math.PI
     objects[1].element.style.transform = `rotate(${objects[1].deg}deg)`
 
-    collisionDetection()
+    // collisionDetection()
 
     //Increment time
     t++;
@@ -232,7 +240,7 @@ function update_p2(){
     objects[2].vy = -Math.abs(objects[2].vy) * REBOUND_RATIO;
   }
 
-  collisionDetection()
+  // collisionDetection()
 
   //Apply damping
   objects[2].vx *= DAMPING_RATIO;
