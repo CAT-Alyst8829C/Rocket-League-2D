@@ -1,0 +1,59 @@
+#gameField {
+    width: 100%;
+    height: 90%;
+    background-color: rgba(85, 107, 47, 0.594);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+#soccerBall {
+    position: absolute;
+    margin:  0;
+    padding: 0;
+    background-color: black;
+    color: black;
+    border-radius: 100%;
+}
+
+#p1 {
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    color: blue;
+    background-color: blue;
+    border-radius: 1px;
+    width: 100px;
+    height: 100px;
+    /* background-image: url(""); */
+}
+
+#p2 {
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    color: red;
+    background-color: red;
+    border-radius: 1px;
+    width: 100px;
+    height: 100px;
+    /* background-image: url(""); */
+}
+
+#net1 {
+    position: absolute;
+    width: 10px;
+    height: 250px;
+    background-color: grey;
+    top: calc(50% - 125px);
+    left: 0%;
+}
+
+#net2 {
+    position: absolute;
+    width: 10px;
+    height: 250px;
+    background-color: grey;
+    top: calc(50% - 125px);
+    right: 0%;
+}
