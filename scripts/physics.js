@@ -2,7 +2,8 @@
 const INITIAL       = 10,
     GRAVITY       =  0,
     REBOUND_RATIO =  0.5,
-    DAMPING_RATIO =  0.995;
+    DAMPING_RATIO =  0.995,
+    MAX_SPEED = 6;
 
 //Globals
 var timer, t = 0,
@@ -16,9 +17,9 @@ function init(){
   addP1(window.innerWidth / 4, mY, 100, 75)
   addP2((window.innerWidth / 4) * 3, mY, 100, 75)
   
-  timer = window.setInterval(update_soccer, 10);
-  timer_2 = window.setInterval(update_p1, 10);
-  timer_3 = window.setInterval(update_p2, 10);
+  window.setInterval(update_soccer, 10);
+  window.setInterval(update_p1, 10);
+  window.setInterval(update_p2, 10);
 }
 
 function addSoccer(x, y, w, h){
@@ -90,21 +91,39 @@ function addP2(x, y, w, h){
   objects.push(object);
 }
 
-function addForce(obj, x, y){
-    obj.vx += x;
-    obj.vy += y;
+function addForce(obj, x, y) {
+    //Adding movement
+    if(!(Math.abs(obj.vx) >= MAX_SPEED)) {
+      obj.vx += x;
+    }
+
+    if(!(Math.abs(obj.vy) >= MAX_SPEED)) {
+      obj.vy += y;
+    }
 }
 
 function collisionDetection() {
-   if (((objects[0].px - 25 == obj[1].px + 50) || (objects[0].px + 25 == obj[1] - 50)) && ((objects[0].py + 25 == objects[1].py - 37.5) || (objects[0].py - 25 == objects[1].py + 37.5))) {
-    objects[0].vx += objects[1].vx;
-    addForce(objects[0], objects[1].vx, objects[1].vy);
-    objects[0].vy += objects[1].vy;
-   }
+  let soccerBall = objects[0]
+  let player1Rect = objects[1].element.getBoundingClientRect()
+  let player2Rect = objects[2].element.getBoundingClientRect()
+
+  if(player1Rect.x < player2Rect.x + player2Rect.width &&
+    player1Rect.x + player1Rect.width > player2Rect.x &&
+    player1Rect.y < player2Rect.y + player2Rect.height &&
+    player1Rect.height + player1Rect.y > player2Rect.y
+  ) {
+    var car_1_vx = objects[1].vx;
+    var car_1_vy = objects[1].vy;
+
+    objects[1].vx = objects[2].vx;
+    objects[2].vx = car_1_vx;
+
+    objects[1].vy = objects[2].vy;
+    objects[2].vy = car_1_vy;
+  }
 }
 
 function update_soccer(){
-
     
     // Apply rebound after collision
     if (objects[0].px < 0) {
@@ -128,8 +147,6 @@ function update_soccer(){
 
     collisionDetection();
 
-  
-
     //Apply damping
     objects[0].vx *= DAMPING_RATIO;
     objects[0].vy *= DAMPING_RATIO;
@@ -142,20 +159,15 @@ function update_soccer(){
     objects[0].py += objects[0].vy;
     objects[0].element.style.left = objects[0].px+"px";
     objects[0].element.style.top  = objects[0].py+"px";
-    
-    //Update Rotation
-    objects[0].deg = Math.atan2(objects[0].vy, objects[0].vx) * 180 / Math.PI
-    objects[0].element.style.transform = `rotate(${objects[0].deg}deg)`
 
-      //Increment time
-      t++;
+    //Increment time
+    t++;
   }
 
 
 
 function update_p1(){
 
-    
     // Apply rebound after collision
     if (objects[1].px < 0) {
       // Left
@@ -176,8 +188,6 @@ function update_p1(){
       objects[1].vy = -Math.abs(objects[1].vy) * REBOUND_RATIO;
     }
 
-  
-
     //Apply damping
     objects[1].vx *= 0.995;
     objects[1].vy *= 0.995;
@@ -195,13 +205,13 @@ function update_p1(){
     objects[1].deg = Math.atan2(objects[1].vy, objects[1].vx) * 180 / Math.PI
     objects[1].element.style.transform = `rotate(${objects[1].deg}deg)`
 
-      //Increment time
+    collisionDetection()
+
+    //Increment time
     t++;
 }
 
-function update_p2(){
-
-    
+function update_p2(){ 
   // Apply rebound after collision
   if (objects[2].px < 0) {
     // Left
@@ -222,7 +232,7 @@ function update_p2(){
     objects[2].vy = -Math.abs(objects[2].vy) * REBOUND_RATIO;
   }
 
-
+  collisionDetection()
 
   //Apply damping
   objects[2].vx *= DAMPING_RATIO;
@@ -241,41 +251,35 @@ function update_p2(){
   objects[2].deg = Math.atan2(objects[2].vy, objects[2].vx) * 180 / Math.PI
   objects[2].element.style.transform = `rotate(${objects[2].deg}deg)`
 
-    //Increment time
+  //Increment time
   t++;
 }
 
 
 document.addEventListener("DOMContentLoaded", function() {
-  init()
+    init()
 
-
-    
     //Player 1 controls
     document.addEventListener('keydown', function(event) {
       if (event.key == "w") {
-        // addForce(objects[1], 0, -2.5);
-        objects[1].vy += -2;
+        addForce(objects[1], 0, -2);
       }
     })
     document.addEventListener('keydown', function(event) {
       if (event.key == "a") {
-        // addForce(objects[1], -2.5, 0);
-        objects[1].vx += -2;
+        addForce(objects[1], -2, 0);
       }
     })
 
     document.addEventListener('keydown', function(event) {
       if (event.key == "s") {
-        // addForce(objects[1], 0, 2.5);
-        objects[1].vy += 2;
+        addForce(objects[1], 0, 2);
       }
     })
 
     document.addEventListener('keydown', function(event) {
       if (event.key == "d") {
-        // addForce(objects[1], 2.5, 0);
-        objects[1].vx += 2;
+        addForce(objects[1], 2, 0);
       }
     })
 
