@@ -20,7 +20,7 @@ function init(){
   window.setInterval(update_soccer, 10);
   window.setInterval(update_p1, 10);
   window.setInterval(update_p2, 10);
-  window.setInterval(collisionDetection, 10)
+  window.setInterval(collisionDetection, 10);
 }
 
 function addSoccer(x, y, w, h){
@@ -115,16 +115,15 @@ function collisionDetection() {
   ) {
     var car_1_vx = objects[1].vx;
     var car_1_vy = objects[1].vy;
+
     var car_2_vx = objects[2].vx;
     var car_2_vy = objects[2].vy;
 
-    objects[1].vx = (objects[2].vx * 0.7) - (car_1_vx * 0.5);
-    objects[2].vx = (car_1_vx * 0.7) - (car_2_vx * 0.5);
+    objects[1].vx = (car_2_vx * 0.6) - (car_1_vx * 0.5);
+    objects[2].vx = (car_1_vx * 0.6) - (car_2_vx * 0.5);
 
-    objects[1].vy = (objects[2].vy & 0.7) - (car_1_vy* 0.5);
-    objects[2].vy = (car_1_vy * 0.7)- (car_2_vy * 0.5);
-
-
+    objects[1].vy = (car_2_vy * 0.6) - (car_1_vy * 0.5);
+    objects[2].vy = (car_1_vy * 0.6) - (car_2_vy * 0.5);
 
     setTimeout(300)
   }
