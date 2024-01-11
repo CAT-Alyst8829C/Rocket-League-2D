@@ -103,11 +103,12 @@ function addForce(obj, x, y) {
     }
 }
 
-function collisionDetection() {
-  let soccerBall = objects[0]
+function collisionDetection() {  
+  let soccerBallRect = objects[0].element.getBoundingClientRect()
   let player1Rect = objects[1].element.getBoundingClientRect()
   let player2Rect = objects[2].element.getBoundingClientRect()
 
+  //Player to player collision
   if(player1Rect.x < player2Rect.x + player2Rect.width &&
     player1Rect.x + player1Rect.width > player2Rect.x &&
     player1Rect.y < player2Rect.y + player2Rect.height &&
@@ -126,6 +127,29 @@ function collisionDetection() {
     objects[2].vy = (car_1_vy * 0.6) - (car_2_vy * 0.5);
 
     setTimeout(300)
+  }
+
+  //Player to soccer ball collision
+  if(player1Rect.x < soccerBallRect.x + soccerBallRect.width &&
+    player1Rect.x + player1Rect.width > soccerBallRect.x &&
+    player1Rect.y < soccerBallRect.y + soccerBallRect.height &&
+    player1Rect.height + player1Rect.y > soccerBallRect.y
+  ) {
+    objects[0].vx = (objects[1].vx * 4) - (objects[0].vx * 0.5);
+    objects[0].vy = (objects[1].vy * 4) - (objects[0].vy * 0.5);;
+
+    // setTimeout(300)
+  }
+
+  if(player2Rect.x < soccerBallRect.x + soccerBallRect.width &&
+    player2Rect.x + player2Rect.width > soccerBallRect.x &&
+    player2Rect.y < soccerBallRect.y + soccerBallRect.height &&
+    player2Rect.height + player2Rect.y > soccerBallRect.y
+  ) {
+    objects[0].vx = (objects[2].vx * 4) - (objects[0].vx * 0.5);
+    objects[0].vy = (objects[2].vy * 4) - (objects[0].vy * 0.5);;
+
+    // setTimeout(300);
   }
 }
 
