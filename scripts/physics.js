@@ -10,17 +10,23 @@ var timer, t = 0,
     objects = [],
     mX = window.innerWidth / 2, 
     mY = window.innerHeight / 2;
+  
+var scoreP1 = 0;
+var scoreP2 = 0;
 
 function init(){
   //Start the timer
   addSoccer(mX, mY, 50, 50)
   addP1(window.innerWidth / 4, mY, 100, 75)
   addP2((window.innerWidth / 4) * 3, mY, 100, 75)
+  var scoreP1 = 0;
+  var scoreP2 = 0;
   
   window.setInterval(update_soccer, 10);
   window.setInterval(update_p1, 10);
   window.setInterval(update_p2, 10);
   window.setInterval(collisionDetection, 10);
+  window.setInterval(goalDetection, 10)
 }
 
 function addSoccer(x, y, w, h){
@@ -120,11 +126,11 @@ function collisionDetection() {
     var car_2_vx = objects[2].vx;
     var car_2_vy = objects[2].vy;
 
-    objects[1].vx = (car_2_vx * 0.6) - (car_1_vx * 0.5);
-    objects[2].vx = (car_1_vx * 0.6) - (car_2_vx * 0.5);
+    objects[1].vx = (car_2_vx * 0.55) - (car_1_vx * 0.5);
+    objects[2].vx = (car_1_vx * 0.55) - (car_2_vx * 0.5);
 
-    objects[1].vy = (car_2_vy * 0.6) - (car_1_vy * 0.5);
-    objects[2].vy = (car_1_vy * 0.6) - (car_2_vy * 0.5);
+    objects[1].vy = (car_2_vy * 0.55) - (car_1_vy * 0.5);
+    objects[2].vy = (car_1_vy * 0.55) - (car_2_vy * 0.5);
 
     setTimeout(300)
   }
@@ -135,8 +141,8 @@ function collisionDetection() {
     player1Rect.y < soccerBallRect.y + soccerBallRect.height &&
     player1Rect.height + player1Rect.y > soccerBallRect.y
   ) {
-    objects[0].vx = (objects[1].vx * 4) - (objects[0].vx * 0.5);
-    objects[0].vy = (objects[1].vy * 4) - (objects[0].vy * 0.5);;
+    objects[0].vx = (objects[1].vx * 3.5) - (objects[0].vx * 0.75);
+    objects[0].vy = (objects[1].vy * 3.5) - (objects[0].vy * 0.75);;
 
     // setTimeout(300)
   }
@@ -146,8 +152,8 @@ function collisionDetection() {
     player2Rect.y < soccerBallRect.y + soccerBallRect.height &&
     player2Rect.height + player2Rect.y > soccerBallRect.y
   ) {
-    objects[0].vx = (objects[2].vx * 4) - (objects[0].vx * 0.5);
-    objects[0].vy = (objects[2].vy * 4) - (objects[0].vy * 0.5);;
+    objects[0].vx = (objects[2].vx * 3.5) - (objects[0].vx * 0.75);
+    objects[0].vy = (objects[2].vy * 3.5) - (objects[0].vy * 0.75);;
 
     // setTimeout(300);
   }
@@ -209,6 +215,7 @@ function update_p1(){
       objects[1].px = window.innerWidth - objects[1].width - 10;
       objects[1].vx = -Math.abs(objects[1].vx) * REBOUND_RATIO;
     }
+    
     if (objects[1].py < 0) {
       // Top
       objects[1].py = 0;
@@ -284,6 +291,73 @@ function update_p2(){
 
   //Increment time
   t++;
+}
+
+function goalDetection() {
+  let net_1 = document.getElementById("net1").getBoundingClientRect();
+  let net_2 = document.getElementById('net2').getBoundingClientRect();
+  let soccer = objects[0].element.getBoundingClientRect();
+
+  if(soccer.x < net_1.x + net_1.width &&
+    soccer.x + soccer.width > net_1.x &&
+    soccer.y < net_1.y + net_1.height &&
+    soccer.height + soccer.y > net_1.y
+  ) {
+    alert("Player 2 Scored! ");
+    scoreP1 += 1;
+    
+    objects[1].px = window.innerWidth / 4;
+    objects[1].py = mY;
+
+    objects[2].px = (window.innerWidth / 4) * 3;
+    objects[2].py = mY;
+
+    objects[0].px = mX;
+    objects[0].py = mY;
+
+    objects[0].px = mX;
+    objects[0].py = mY;
+
+    objects[0].vx = 0;
+    objects[0].vy = 0;
+
+    objects[1].vx = 0;
+    objects[1].vy = 0;
+
+    objects[2].vx = 0;
+    objects[2].vy = 0;
+
+    setTimeout(300)
+  }
+
+  if(soccer.x < net_2.x + net_2.width &&
+    soccer.x + soccer.width > net_2.x &&
+    soccer.y < net_2.y + net_2.height &&
+    soccer.height + soccer.y > net_2.y
+  ) {
+    alert("Player 1 Scored! ");
+    scoreP2 += 1;
+
+    objects[1].px = window.innerWidth / 4;
+    objects[1].py = mY;
+
+    objects[2].px = (window.innerWidth / 4) * 3;
+    objects[2].py = mY;
+
+    objects[0].px = mX;
+    objects[0].py = mY;
+
+    objects[0].vx = 0;
+    objects[0].vy = 0;
+
+    objects[1].vx = 0;
+    objects[1].vy = 0;
+
+    objects[2].vx = 0;
+    objects[2].vy = 0;
+
+    setTimeout(300)
+  }
 }
 
 

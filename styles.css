@@ -1,3 +1,17 @@
+p {
+    position: absolute;
+    margin: auto;
+}
+
+#scoreBoard {
+    width: 100%;
+    height: 10%;
+    background-color: grey;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
 #gameField {
     width: 100%;
     height: 90%;
@@ -57,3 +71,22 @@
     top: calc(50% - 125px);
     right: 0%;
 }
+
+#score1 {
+    position: absolute;
+    left: calc(50% - 50px);
+    background-color: lightgrey;
+    margin-top: 1.5%;
+    width: 5%;
+    height: 50%;
+}
+
+#score2 {
+    position: absolute;
+    left: calc(50% + 50px);
+    background-color: lightgrey;
+    margin-top: 1.5%;
+    width: 5%;
+    height: 50%;
+}
+
