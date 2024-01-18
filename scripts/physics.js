@@ -19,6 +19,7 @@ function init(){
   addSoccer(mX, mY, 50, 50)
   addP1(window.innerWidth / 4, mY, 100, 75)
   addP2((window.innerWidth / 4) * 3, mY, 100, 75)
+
   var scoreP1 = 0;
   var scoreP2 = 0;
   
@@ -27,6 +28,10 @@ function init(){
   window.setInterval(update_p2, 10);
   window.setInterval(collisionDetection, 10);
   window.setInterval(goalDetection, 10)
+}
+
+function titleScreen() {
+  
 }
 
 function addSoccer(x, y, w, h){
@@ -304,7 +309,9 @@ function goalDetection() {
     soccer.height + soccer.y > net_1.y
   ) {
     alert("Player 2 Scored! ");
-    scoreP1 += 1;
+    scoreP2 += 1;
+
+    document.getElementById('score2Display').firstChild.textContent = scoreP2
     
     objects[1].px = window.innerWidth / 4;
     objects[1].py = mY;
@@ -336,7 +343,9 @@ function goalDetection() {
     soccer.height + soccer.y > net_2.y
   ) {
     alert("Player 1 Scored! ");
-    scoreP2 += 1;
+    scoreP1 += 1;
+
+    document.getElementById('score1Display').firstChild.textContent = scoreP1
 
     objects[1].px = window.innerWidth / 4;
     objects[1].py = mY;

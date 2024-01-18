@@ -1,6 +1,9 @@
 p {
-    position: absolute;
     margin: auto;
+    text-align: center;
+    position: absolute;
+    width: 100%;
+    top: 25%;
 }
 
 #scoreBoard {
@@ -11,6 +14,8 @@ p {
     left: 0;
     top: 0;
 }
+
+
 
 #gameField {
     width: 100%;
