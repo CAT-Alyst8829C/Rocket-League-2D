@@ -17,7 +17,7 @@ p {
 
 button {
     position: absolute;
-    top: 50%;
+    top: 40%;
     width: 100px;
     left: calc(50% - 50px);
 }
