@@ -15,12 +15,40 @@ p {
     top: 0;
 }
 
+button {
+    position: absolute;
+    top: 50%;
+    width: 100px;
+    left: calc(50% - 50px);
+}
 
+#startScreen {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(128, 128, 128, 0.5);
+    padding: 0px;
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+}
+
+h1 {
+    text-align: center;
+    margin: auto;
+    top: 25%;
+    width: 100%;
+    position: absolute;
+}
 
 #gameField {
     width: 100%;
     height: 90%;
-    background-color: rgba(85, 107, 47, 0.594);
+    /* background-color: rgba(85, 107, 47, 0.594); */
+    background-image: url('https://us.123rf.com/450wm/piranhi/piranhi2001/piranhi200100003/136954702-aerial-shot-football-pitch-looking-directly-down-over-it-in-a-birdseye-view-in-december-2019.jpg?ver=6');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
     position: absolute;
     bottom: 0;
     left: 0;
@@ -30,8 +58,13 @@ p {
     position: absolute;
     margin:  0;
     padding: 0;
-    background-color: black;
-    color: black;
+    /* background-color: black;
+     */
+    /* color: black; */
+    background-image: url('https://clipart-library.com/images/6Tp5qr77c.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
     border-radius: 100%;
 }
 
@@ -39,23 +72,32 @@ p {
     position: absolute;
     margin: 0;
     padding: 0;
+    /*
     color: blue;
     background-color: blue;
+    */
     border-radius: 1px;
     width: 100px;
     height: 100px;
-    /* background-image: url(""); */
+    background-image: url('https://openclipart.org/image/800px/190177');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
 }
 
 #p2 {
     position: absolute;
     margin: 0;
     padding: 0;
-    color: red;
-    background-color: red;
-    border-radius: 1px;
+    /* background-color: red;
+    border-radius: 1px; */
+    background-image: url('https://www.clker.com/cliparts/G/h/8/0/n/S/red-car-top-view-hi.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
     width: 100px;
     height: 100px;
+    transform: rotate(180deg);
     /* background-image: url(""); */
 }
 
@@ -79,7 +121,7 @@ p {
 
 #score1 {
     position: absolute;
-    left: calc(50% - 50px);
+    left: calc(50% - 75px);
     background-color: lightgrey;
     margin-top: 1.5%;
     width: 5%;
@@ -88,10 +130,14 @@ p {
 
 #score2 {
     position: absolute;
-    left: calc(50% + 50px);
+    left: calc(50% + 25px);
     background-color: lightgrey;
     margin-top: 1.5%;
     width: 5%;
     height: 50%;
+}
+
+body {
+    background-image: url("assets/field.jpg");
 }
 

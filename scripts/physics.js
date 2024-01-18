@@ -14,11 +14,22 @@ var timer, t = 0,
 var scoreP1 = 0;
 var scoreP2 = 0;
 
+function startScreen() {
+  const startScreen = document.getElementById('startScreen')
+  const startButton = document.getElementById('startButton')
+
+  startButton.addEventListener('click', function () {
+    startScreen.style.display = 'none'
+
+    init()
+  })
+}
+
 function init(){
   //Start the timer
   addSoccer(mX, mY, 50, 50)
-  addP1(window.innerWidth / 4, mY, 100, 75)
-  addP2((window.innerWidth / 4) * 3, mY, 100, 75)
+  addP1(window.innerWidth / 4, mY, 150, 75)
+  addP2((window.innerWidth / 4) * 3, mY, 150, 75)
 
   var scoreP1 = 0;
   var scoreP2 = 0;
@@ -27,7 +38,7 @@ function init(){
   window.setInterval(update_p1, 10);
   window.setInterval(update_p2, 10);
   window.setInterval(collisionDetection, 10);
-  window.setInterval(goalDetection, 10)
+  window.setInterval(goalDetection, 10);
 }
 
 function titleScreen() {
@@ -96,7 +107,7 @@ function addP2(x, y, w, h){
     width:  w,
     height: h,
     px: x, py: y,
-    vx: 0, vy: 0,
+    vx: -0.001, vy: 0,
     deg: 0
   };
   //Add object to array
@@ -331,7 +342,7 @@ function goalDetection() {
     objects[1].vx = 0;
     objects[1].vy = 0;
 
-    objects[2].vx = 0;
+    objects[2].vx = -0.001;
     objects[2].vy = 0;
 
     setTimeout(300)
@@ -362,7 +373,7 @@ function goalDetection() {
     objects[1].vx = 0;
     objects[1].vy = 0;
 
-    objects[2].vx = 0;
+    objects[2].vx = -0.001;
     objects[2].vy = 0;
 
     setTimeout(300)
@@ -371,7 +382,7 @@ function goalDetection() {
 
 
 document.addEventListener("DOMContentLoaded", function() {
-    init()
+    startScreen()
 
     //Player 1 controls
     document.addEventListener('keydown', function(event) {
