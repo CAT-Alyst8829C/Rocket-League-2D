@@ -18,21 +18,27 @@ function startScreen() {
   const startScreen = document.getElementById('startScreen')
   const startButton = document.getElementById('startButton')
 
-  startButton.addEventListener('click', function () {
-    startScreen.style.display = 'none'
+  startScreen.style.display = null
 
-    init()
-  })
+  startButton.addEventListener('click', startGame)
 }
 
-function init(){
+function startGame() {
+  const startScreen = document.getElementById('startScreen')
+  const startButton = document.getElementById('startButton')
+
+  startScreen.style.display = 'none'
+
+  init()
+
+  startButton.removeEventListener("click", startGame, false);
+}
+
+function init() {
   //Start the timer
   addSoccer(mX, mY, 50, 50)
   addP1(window.innerWidth / 4, mY, 150, 75)
   addP2((window.innerWidth / 4) * 3, mY, 150, 75)
-
-  var scoreP1 = 0;
-  var scoreP2 = 0;
   
   window.setInterval(update_soccer, 10);
   window.setInterval(update_p1, 10);
@@ -41,8 +47,23 @@ function init(){
   window.setInterval(goalDetection, 10);
 }
 
-function titleScreen() {
-  
+function resetGame() {
+  window.clearInterval(1)
+  window.clearInterval(2)
+  window.clearInterval(3)
+  window.clearInterval(4)
+  window.clearInterval(5)
+
+  objects[0].element.remove()
+  objects[1].element.remove()
+  objects[2].element.remove()
+
+  objects = []
+
+  document.getElementById('score1Display').firstChild.textContent = 0
+  document.getElementById('score2Display').firstChild.textContent = 0
+
+  startScreen()
 }
 
 function addSoccer(x, y, w, h){
@@ -260,7 +281,13 @@ function update_p1(){
     objects[1].element.style.transform = `rotate(${objects[1].deg}deg)`
 
     // collisionDetection()
+    if(scoreP1 == 10) {
+      scoreP1 = 0
+      scoreP2 = 0
 
+      resetGame();
+      alert('Player 1 won! ');
+    }
     //Increment time
     t++;
 }
@@ -305,6 +332,13 @@ function update_p2(){
   objects[2].deg = Math.atan2(objects[2].vy, objects[2].vx) * 180 / Math.PI
   objects[2].element.style.transform = `rotate(${objects[2].deg}deg)`
 
+  if (scoreP2 == 1)  {
+    scoreP1 = 0
+    scoreP2 = 0
+
+    resetGame()
+    alert('Player 2 won! ');
+  }
   //Increment time
   t++;
 }
@@ -354,6 +388,7 @@ function goalDetection() {
     soccer.height + soccer.y > net_2.y
   ) {
     alert("Player 1 Scored! ");
+    
     scoreP1 += 1;
 
     document.getElementById('score1Display').firstChild.textContent = scoreP1

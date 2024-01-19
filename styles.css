@@ -45,7 +45,7 @@ h1 {
     width: 100%;
     height: 90%;
     /* background-color: rgba(85, 107, 47, 0.594); */
-    background-image: url('https://us.123rf.com/450wm/piranhi/piranhi2001/piranhi200100003/136954702-aerial-shot-football-pitch-looking-directly-down-over-it-in-a-birdseye-view-in-december-2019.jpg?ver=6');
+    background-image: url('https://e0.pxfuel.com/wallpapers/409/122/desktop-wallpaper-football-pitch-ultra-background-for-u-tv.jpg');
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
@@ -137,7 +137,32 @@ h1 {
     height: 50%;
 }
 
-body {
-    background-image: url("assets/field.jpg");
+h1 {
+    -webkit-text-stroke: 2px black;
 }
 
+.rainbow {
+    text-align: center;
+    font-size: 32px;
+    font-family: monospace;
+    letter-spacing: 5px;
+}
+
+.rainbowTextAnimated {
+    background: linear-gradient(to right, #6666ff, #0099ff , #00ff00, #ff3399, #6666ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: rainbowAnimation 6s ease-in-out infinite;
+    background-size: 400% 100%;
+}
+
+@keyframes rainbowAnimation {
+    0%,100% {
+        background-position: 0 0;
+    }
+
+    50% {
+        background-position: 100% 0;
+    }
+}
