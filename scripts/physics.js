@@ -332,7 +332,7 @@ function update_p2(){
   objects[2].deg = Math.atan2(objects[2].vy, objects[2].vx) * 180 / Math.PI
   objects[2].element.style.transform = `rotate(${objects[2].deg}deg)`
 
-  if (scoreP2 == 1)  {
+  if (scoreP2 == 10)  {
     scoreP1 = 0
     scoreP2 = 0
 
