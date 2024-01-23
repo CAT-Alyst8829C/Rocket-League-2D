@@ -3,7 +3,7 @@ const INITIAL       = 10,
     GRAVITY       =  0,
     REBOUND_RATIO =  0.5,
     DAMPING_RATIO =  0.995,
-    MAX_SPEED = 10;
+    MAX_SPEED = 4;
 
 //Globals
 var timer, t = 0,
@@ -13,12 +13,24 @@ var timer, t = 0,
   
 var scoreP1 = 0;
 var scoreP2 = 0;
+var deuce = 10;
 
-function startScreen() {
+var keyQueue = []
+
+var gameIsInProgress = false;
+var gameIsPaused = true;
+
+function startScreen(winner) {
   const startScreen = document.getElementById('startScreen')
+  const startScreenTitle = document.getElementById('startScreenTitle')
   const startButton = document.getElementById('startButton')
 
   startScreen.style.display = null
+
+  if(winner !== 0) {
+    startScreenTitle.textContent = `Player ${winner} won!`
+    startButton.textContent = 'Play again?'
+  }
 
   startButton.addEventListener('click', startGame)
 }
@@ -44,10 +56,12 @@ function init() {
   window.setInterval(update_p1, 10);
   window.setInterval(update_p2, 10);
   window.setInterval(collisionDetection, 10);
-  window.setInterval(goalDetection, 10);
+
+  gameIsInProgress = true;
+  gameIsPaused = false;
 }
 
-function resetGame() {
+function resetGame(winner) {
   window.clearInterval(1)
   window.clearInterval(2)
   window.clearInterval(3)
@@ -63,7 +77,9 @@ function resetGame() {
   document.getElementById('score1Display').firstChild.textContent = 0
   document.getElementById('score2Display').firstChild.textContent = 0
 
-  startScreen()
+  startScreen(winner)
+
+  gameIsInProgress = true;
 }
 
 function addSoccer(x, y, w, h){
@@ -146,99 +162,333 @@ function addForce(obj, x, y) {
     }
 }
 
+function countdown() {
+  let image1 = document.getElementById('image1')
+  let image2 = document.getElementById('image2')
+  let image3 = document.getElementById('image3')
+
+  image3.style.visibility = 'visible'
+
+  keyQueue = []
+
+  setTimeout(() => {
+    image3.style.visibility = 'hidden'
+    image2.style.visibility = 'visible'
+  }, 1000)
+
+  setTimeout(() => {
+    image2.style.visibility = 'hidden'
+    image1.style.visibility = 'visible'
+  }, 2000)
+
+  setTimeout(() => {
+    image1.style.visibility = 'hidden'
+  
+    gameIsPaused = false;
+  }, 3000)
+}
+
 function collisionDetection() {  
   let soccerBallRect = objects[0].element.getBoundingClientRect()
   let player1Rect = objects[1].element.getBoundingClientRect()
   let player2Rect = objects[2].element.getBoundingClientRect()
 
-  //Player to player collision
-  if(player1Rect.x < player2Rect.x + player2Rect.width &&
-    player1Rect.x + player1Rect.width > player2Rect.x &&
-    player1Rect.y < player2Rect.y + player2Rect.height &&
-    player1Rect.height + player1Rect.y > player2Rect.y
-  ) {
+  let player1 = objects[1].element
+  let player2 = objects[2].element
+
+  let net_1 = document.getElementById("net1").getBoundingClientRect();
+  let net_2 = document.getElementById('net2').getBoundingClientRect();
+
+  if (isCollision(player1, player2)) {
+    const overlapX = (player1Rect.width + player2Rect.width) * 0.5 - Math.abs(player1Rect.x - player2Rect.x);
+    const overlapY = (player1Rect.height + player2Rect.height) * 0.5 - Math.abs(player1Rect.y - player2Rect.y);
+
     var car_1_vx = objects[1].vx;
     var car_1_vy = objects[1].vy;
 
     var car_2_vx = objects[2].vx;
     var car_2_vy = objects[2].vy;
 
-    objects[1].vx = (car_2_vx * 0.55) - (car_1_vx * 0.5);
-    objects[2].vx = (car_1_vx * 0.55) - (car_2_vx * 0.5);
+    // Resolve overlap
+    if (overlapX > overlapY) {
+      if (player1Rect.x < player2Rect.x) {
+        objects[1].px -= overlapX * 0.5;
+        objects[2].px += overlapX * 0.5;
+      } else {
+        objects[1].px += overlapX * 0.5;
+        objects[2].px -= overlapX * 0.5;
+      }
 
-    objects[1].vy = (car_2_vy * 0.55) - (car_1_vy * 0.5);
-    objects[2].vy = (car_1_vy * 0.55) - (car_2_vy * 0.5);
+      objects[1].vx = (car_2_vx * 0.55) - (car_1_vx * 0.5);
+      objects[2].vx = (car_1_vx * 0.55) - (car_2_vx * 0.5);
 
-    setTimeout(300)
+      objects[1].vy = (car_2_vy * 0.55) - (car_1_vy * 0.5);
+      objects[2].vy = (car_1_vy * 0.55) - (car_2_vy * 0.5);
+    } else {
+      if (player1Rect.y < player2Rect.y) {
+        objects[1].py -= overlapY * 0.5;
+        objects[2].py += overlapY * 0.5;
+      } else {
+        objects[1].py += overlapY * 0.5;
+        objects[2].py -= overlapY * 0.5;
+      }
+
+      objects[1].vx = (car_2_vx * 0.55) - (car_1_vx * 0.5);
+      objects[2].vx = (car_1_vx * 0.55) - (car_2_vx * 0.5);
+
+      objects[1].vy = (car_2_vy * 0.55) - (car_1_vy * 0.5);
+      objects[2].vy = (car_1_vy * 0.55) - (car_2_vy * 0.5);
+    }
   }
 
   //Player to soccer ball collision
-  if(player1Rect.x < soccerBallRect.x + soccerBallRect.width &&
+  if (player1Rect.x < soccerBallRect.x + soccerBallRect.width &&
     player1Rect.x + player1Rect.width > soccerBallRect.x &&
     player1Rect.y < soccerBallRect.y + soccerBallRect.height &&
     player1Rect.height + player1Rect.y > soccerBallRect.y
   ) {
-    objects[0].vx = (objects[1].vx * 3.5) - (objects[0].vx * 0.75);
-    objects[0].vy = (objects[1].vy * 3.5) - (objects[0].vy * 0.75);;
+    objects[0].vx = (objects[1].vx * 3.5) - (objects[0].vx);
+    objects[0].vy = (objects[1].vy * 3.5) - (objects[0].vy);
 
-    // setTimeout(300)
+    objects[1].vx *= 0.9
+    objects[1].vy *= 0.9
   }
 
-  if(player2Rect.x < soccerBallRect.x + soccerBallRect.width &&
+  if (player2Rect.x < soccerBallRect.x + soccerBallRect.width &&
     player2Rect.x + player2Rect.width > soccerBallRect.x &&
     player2Rect.y < soccerBallRect.y + soccerBallRect.height &&
     player2Rect.height + player2Rect.y > soccerBallRect.y
   ) {
     objects[0].vx = (objects[2].vx * 3.5) - (objects[0].vx * 0.75);
-    objects[0].vy = (objects[2].vy * 3.5) - (objects[0].vy * 0.75);;
+    objects[0].vy = (objects[2].vy * 3.5) - (objects[0].vy * 0.75);
 
-    // setTimeout(300);
+    objects[2].vx *= 0.9
+    objects[2].vy *= 0.9
+  }
+
+  if (soccerBallRect.x < net_1.x + net_1.width &&
+    soccerBallRect.x + soccerBallRect.width > net_1.x &&
+    soccerBallRect.y < net_1.y + net_1.height &&
+    soccerBallRect.height + soccerBallRect.y > net_1.y
+  ) {
+    alert("Player 2 Scored! ");
+    scoreP2 += 1;
+
+    document.getElementById('score2Display').firstChild.textContent = scoreP2
+    
+    objects[1].px = window.innerWidth / 4;
+    objects[1].py = mY;
+
+    objects[2].px = (window.innerWidth / 4) * 3;
+    objects[2].py = mY;
+
+    objects[0].px = mX;
+    objects[0].py = mY;
+
+    objects[0].px = mX;
+    objects[0].py = mY;
+
+    objects[0].vx = 0;
+    objects[0].vy = 0;
+
+    objects[1].vx = 0;
+    objects[1].vy = 0;
+
+    objects[2].vx = -0.001;
+    objects[2].vy = 0;
+
+    if (scoreP1 == (deuce - 1) && scoreP2 == (deuce - 1)) {
+      deuce += 1;
+
+      alert('Deuce!')
+
+      gameIsPaused = true;
+
+      countdown()
+    } else if (scoreP2 == deuce)  {
+      scoreP1 = 0
+      scoreP2 = 0
+  
+      resetGame(2)
+      confirm('Player 2 won!');
+    } else {
+      gameIsPaused = true;
+
+      countdown()
+    }
+  }
+
+  if (soccerBallRect.x < net_2.x + net_2.width &&
+    soccerBallRect.x + soccerBallRect.width > net_2.x &&
+    soccerBallRect.y < net_2.y + net_2.height &&
+    soccerBallRect.height + soccerBallRect.y > net_2.y
+  ) {
+    alert("Player 1 Scored! ");
+    
+    scoreP1 += 1;
+
+    document.getElementById('score1Display').firstChild.textContent = scoreP1
+
+    objects[1].px = window.innerWidth / 4;
+    objects[1].py = mY;
+
+    objects[2].px = (window.innerWidth / 4) * 3;
+    objects[2].py = mY;
+
+    objects[0].px = mX;
+    objects[0].py = mY;
+
+    objects[0].vx = 0;
+    objects[0].vy = 0;
+
+    objects[1].vx = 0;
+    objects[1].vy = 0;
+
+    objects[2].vx = -0.001;
+    objects[2].vy = 0;
+
+    if (scoreP1 == (deuce - 1) && scoreP2 == (deuce - 1)) {
+      deuce += 1;
+
+      alert('Deuce!')
+
+      gameIsPaused = true;
+
+      countdown()
+    } else if (scoreP1 == deuce)  {
+      scoreP1 = 0
+      scoreP2 = 0
+  
+      resetGame(2)
+      confirm('Player 2 won!');
+    } else {
+      gameIsPaused = true;
+
+      countdown()
+    }
   }
 }
 
-
-function update_soccer(){
+function update_soccer() {
     
-    // Apply rebound after collision
-    if (objects[0].px < 0) {
-      // Left
-      objects[0].px = 0;
-      objects[0].vx = Math.abs(objects[0].vx) * REBOUND_RATIO;
-    } else if (objects[0].px + objects[0].width > window.innerWidth - 10) {
-      // Right
-      objects[0].px = window.innerWidth - objects[0].width - 10;
-      objects[0].vx = -Math.abs(objects[0].vx) * REBOUND_RATIO;
-    }
-    if (objects[0].py < 0) {
-      // Top
-      objects[0].py = 0;
-      objects[0].vy = Math.abs(objects[0].vy) * REBOUND_RATIO;
-    } else if (objects[0].py + objects[0].height > window.innerHeight - 10) {
-      // Bottom
-      objects[0].py = window.innerHeight - objects[0].height - 10;
-      objects[0].vy = -Math.abs(objects[0].vy) * REBOUND_RATIO;
-    }
-
-    // collisionDetection();
-
-    //Apply damping
-    objects[0].vx *= DAMPING_RATIO;
-    objects[0].vy *= DAMPING_RATIO;
-
-    //Apply gravity
-    objects[0].vy += GRAVITY;
-
-    //Update position
-    objects[0].px += objects[0].vx;
-    objects[0].py += objects[0].vy;
-    objects[0].element.style.left = objects[0].px+"px";
-    objects[0].element.style.top  = objects[0].py+"px";
-
-    //Increment time
-    t++;
+  // Apply rebound after collision
+  if (objects[0].px < 0) {
+    // Left
+    objects[0].px = 0;
+    objects[0].vx = Math.abs(objects[0].vx) * REBOUND_RATIO;
+  } else if (objects[0].px + objects[0].width > window.innerWidth - 10) {
+    // Right
+    objects[0].px = window.innerWidth - objects[0].width - 10;
+    objects[0].vx = -Math.abs(objects[0].vx) * REBOUND_RATIO;
+  }
+  if (objects[0].py < 0) {
+    // Top
+    objects[0].py = 0;
+    objects[0].vy = Math.abs(objects[0].vy) * REBOUND_RATIO;
+  } else if (objects[0].py + objects[0].height > window.innerHeight - 10) {
+    // Bottom
+    objects[0].py = window.innerHeight - objects[0].height - 10;
+    objects[0].vy = -Math.abs(objects[0].vy) * REBOUND_RATIO;
   }
 
+  //Apply damping
+  objects[0].vx *= DAMPING_RATIO;
+  objects[0].vy *= DAMPING_RATIO;
 
+  //Apply gravity
+  objects[0].vy += GRAVITY;
+
+  //Update position
+  objects[0].px += objects[0].vx;
+  objects[0].py += objects[0].vy;
+  objects[0].element.style.left = objects[0].px+"px";
+  objects[0].element.style.top  = objects[0].py+"px";
+
+  //Increment time
+  t++;
+}
+
+function getRotatedRectVertices(object) {
+  const objectRect = object.getBoundingClientRect();
+  const angleRad = getRotationAngle(object) * (Math.PI / 180);
+
+  const centerX = objectRect.left + objectRect.width / 2;
+  const centerY = objectRect.top + objectRect.height / 2;
+
+  const dx = objectRect.width / 2;
+  const dy = objectRect.height / 2;
+
+  const x1 = centerX + dx * Math.cos(angleRad) - dy * Math.sin(angleRad);
+  const y1 = centerY + dx * Math.sin(angleRad) + dy * Math.cos(angleRad);
+
+  const x2 = centerX - dx * Math.cos(angleRad) - dy * Math.sin(angleRad);
+  const y2 = centerY + dx * Math.sin(angleRad) - dy * Math.cos(angleRad);
+
+  const x3 = centerX - dx * Math.cos(angleRad) + dy * Math.sin(angleRad);
+  const y3 = centerY - dx * Math.sin(angleRad) - dy * Math.cos(angleRad);
+
+  const x4 = centerX + dx * Math.cos(angleRad) + dy * Math.sin(angleRad);
+  const y4 = centerY - dx * Math.sin(angleRad) + dy * Math.cos(angleRad);
+
+  return [
+    { x: x1, y: y1 },
+    { x: x2, y: y2 },
+    { x: x3, y: y3 },
+    { x: x4, y: y4 },
+  ];
+}
+
+function isCollision(rect1, rect2) {
+  const rect1Vertices = getRotatedRectVertices(rect1);
+  const rect2Vertices = getRotatedRectVertices(rect2);
+
+  // Check for intersection of the rectangles' vertices
+  for (const vertex of rect1Vertices) {
+    if (pointInsideRect(vertex.x, vertex.y, rect2Vertices)) {
+      return true; // Collision detected
+    }
+  }
+
+  for (const vertex of rect2Vertices) {
+    if (pointInsideRect(vertex.x, vertex.y, rect1Vertices)) {
+      return true; // Collision detected
+    }
+  }
+
+  return false; // No collision
+}
+
+function getRotationAngle(element) {
+  const style = window.getComputedStyle(element, null);
+  const matrix = style.getPropertyValue('transform');
+  const matrixValues = matrix.split('(')[1].split(')')[0].split(',');
+
+  const a = matrixValues[0];
+  const b = matrixValues[1];
+
+  return Math.atan2(b, a) * (180 / Math.PI);
+}
+
+function pointInsideRect(x, y, vertices) {
+  let inside = false;
+
+  for (let i = 0, j = vertices.length - 1; i < vertices.length; j = i++) {
+    const xi = vertices[i].x;
+    const yi = vertices[i].y;
+    const xj = vertices[j].x;
+    const yj = vertices[j].y;
+
+    const intersect =
+      ((yi > y) !== (yj > y)) &&
+      (x < ((xj - xi) * (y - yi)) / (yj - yi) + xi);
+
+    if (intersect) {
+      inside = !inside;
+    }
+  }
+
+  return inside;
+}
 
 function update_p1(){
 
@@ -280,15 +530,11 @@ function update_p1(){
     objects[1].deg = Math.atan2(objects[1].vy, objects[1].vx) * 180 / Math.PI
     objects[1].element.style.transform = `rotate(${objects[1].deg}deg)`
 
-    // collisionDetection()
-    if(scoreP1 == 10) {
-      scoreP1 = 0
-      scoreP2 = 0
+    if (keyQueue.includes('w')) addForce(objects[1], 0, -2);
+    if (keyQueue.includes('a')) addForce(objects[1], -2, 0);
+    if (keyQueue.includes('s')) addForce(objects[1], 0, 2);
+    if (keyQueue.includes('d')) addForce(objects[1], 2, 0);
 
-      resetGame();
-      alert('Player 1 won! ');
-    }
-    //Increment time
     t++;
 }
 
@@ -332,141 +578,46 @@ function update_p2(){
   objects[2].deg = Math.atan2(objects[2].vy, objects[2].vx) * 180 / Math.PI
   objects[2].element.style.transform = `rotate(${objects[2].deg}deg)`
 
-  if (scoreP2 == 10)  {
-    scoreP1 = 0
-    scoreP2 = 0
-
-    resetGame()
-    alert('Player 2 won! ');
-  }
-  //Increment time
+  if (keyQueue.includes('arrowup')) addForce(objects[2], 0, -2);
+  if (keyQueue.includes('arrowleft')) addForce(objects[2], -2, 0);
+  if (keyQueue.includes('arrowdown')) addForce(objects[2], 0, 2);
+  if (keyQueue.includes('arrowright')) addForce(objects[2], 2, 0);
+  
   t++;
 }
 
-function goalDetection() {
-  let net_1 = document.getElementById("net1").getBoundingClientRect();
-  let net_2 = document.getElementById('net2').getBoundingClientRect();
-  let soccer = objects[0].element.getBoundingClientRect();
-
-  if(soccer.x < net_1.x + net_1.width &&
-    soccer.x + soccer.width > net_1.x &&
-    soccer.y < net_1.y + net_1.height &&
-    soccer.height + soccer.y > net_1.y
-  ) {
-    alert("Player 2 Scored! ");
-    scoreP2 += 1;
-
-    document.getElementById('score2Display').firstChild.textContent = scoreP2
-    
-    objects[1].px = window.innerWidth / 4;
-    objects[1].py = mY;
-
-    objects[2].px = (window.innerWidth / 4) * 3;
-    objects[2].py = mY;
-
-    objects[0].px = mX;
-    objects[0].py = mY;
-
-    objects[0].px = mX;
-    objects[0].py = mY;
-
-    objects[0].vx = 0;
-    objects[0].vy = 0;
-
-    objects[1].vx = 0;
-    objects[1].vy = 0;
-
-    objects[2].vx = -0.001;
-    objects[2].vy = 0;
-
-    setTimeout(300)
-  }
-
-  if(soccer.x < net_2.x + net_2.width &&
-    soccer.x + soccer.width > net_2.x &&
-    soccer.y < net_2.y + net_2.height &&
-    soccer.height + soccer.y > net_2.y
-  ) {
-    alert("Player 1 Scored! ");
-    
-    scoreP1 += 1;
-
-    document.getElementById('score1Display').firstChild.textContent = scoreP1
-
-    objects[1].px = window.innerWidth / 4;
-    objects[1].py = mY;
-
-    objects[2].px = (window.innerWidth / 4) * 3;
-    objects[2].py = mY;
-
-    objects[0].px = mX;
-    objects[0].py = mY;
-
-    objects[0].vx = 0;
-    objects[0].vy = 0;
-
-    objects[1].vx = 0;
-    objects[1].vy = 0;
-
-    objects[2].vx = -0.001;
-    objects[2].vy = 0;
-
-    setTimeout(300)
-  }
-}
-
-
 document.addEventListener("DOMContentLoaded", function() {
-    startScreen()
+    startScreen(0)
 
-    //Player 1 controls
-    document.addEventListener('keydown', function(event) {
-      if (event.key == "w") {
-        addForce(objects[1], 0, -2);
-      }
-    })
-    document.addEventListener('keydown', function(event) {
-      if (event.key == "a") {
-        addForce(objects[1], -2, 0);
-      }
-    })
+    window.addEventListener('keydown', function(event) {
+      if (gameIsPaused) return
 
-    document.addEventListener('keydown', function(event) {
-      if (event.key == "s") {
-        addForce(objects[1], 0, 2);
-      }
-    })
-
-    document.addEventListener('keydown', function(event) {
-      if (event.key == "d") {
-        addForce(objects[1], 2, 0);
+      if ((event.key.toLowerCase() == "w" ||
+        event.key.toLowerCase() == "a" ||
+        event.key.toLowerCase() == "s" ||
+        event.key.toLowerCase() == "d" ||
+        event.key == "ArrowUp" ||
+        event.key == "ArrowLeft" ||
+        event.key == "ArrowDown" ||
+        event.key == "ArrowRight"
+      ) && keyQueue.indexOf(event.key.toLowerCase()) == -1){
+        keyQueue.push(event.key.toLowerCase())
       }
     })
 
-    //Player 2 controls
-    document.addEventListener('keydown', function(event) {
-      if (event.key == "ArrowUp") {
-        addForce(objects[2], 0, -2);
-      }
-    })
-
-    document.addEventListener('keydown', function(event) {
-      if (event.key == "ArrowLeft") {
-        addForce(objects[2], -2, 0);
-      }
-    })
-
-    document.addEventListener('keydown', function(event) {
-      if (event.key == "ArrowDown") {
-        addForce(objects[2], 0, 2);
-      }
-    })
-
-    document.addEventListener('keydown', function(event) {
-      if (event.key == "ArrowRight") {
-        addForce(objects[2], 2, 0);
+    window.addEventListener('keyup', function(event) {
+      if (gameIsPaused) return
+      
+      if (event.key.toLowerCase() == "w" ||
+        event.key.toLowerCase() == "a" ||
+        event.key.toLowerCase() == "s" ||
+        event.key.toLowerCase() == "d" ||
+        event.key == "ArrowUp" ||
+        event.key == "ArrowLeft" ||
+        event.key == "ArrowDown" ||
+        event.key == "ArrowRight"
+      ) {
+        keyQueue.splice(keyQueue.indexOf(event.key.toLowerCase()), 1)
       }
     })
   })
-
-

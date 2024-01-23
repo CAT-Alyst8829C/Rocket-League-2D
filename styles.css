@@ -39,6 +39,8 @@ h1 {
     top: 25%;
     width: 100%;
     position: absolute;
+    -webkit-text-stroke: 2px black;
+    font-size: 50px;
 }
 
 #gameField {
@@ -137,13 +139,8 @@ h1 {
     height: 50%;
 }
 
-h1 {
-    -webkit-text-stroke: 2px black;
-}
-
 .rainbow {
     text-align: center;
-    font-size: 32px;
     font-family: monospace;
     letter-spacing: 5px;
 }
