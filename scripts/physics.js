@@ -3,7 +3,7 @@ const INITIAL       = 10,
     GRAVITY       =  0,
     REBOUND_RATIO =  0.5,
     DAMPING_RATIO =  0.995,
-    MAX_SPEED = 4;
+    MAX_SPEED = 6;
 
 //Globals
 var timer, t = 0,
@@ -14,6 +14,8 @@ var timer, t = 0,
 var scoreP1 = 0;
 var scoreP2 = 0;
 var deuce = 10;
+
+var intervals = 5
 
 var keyQueue = []
 
@@ -48,38 +50,38 @@ function startGame() {
 
 function init() {
   //Start the timer
-  addSoccer(mX, mY, 50, 50)
-  addP1(window.innerWidth / 4, mY, 150, 75)
-  addP2((window.innerWidth / 4) * 3, mY, 150, 75)
+  addSoccer((mX - 25), (((window.innerHeight * 0.9) / 2) - 25), 50, 50)
+  addP1(((window.innerWidth / 4) - 150), ((window.innerHeight * 0.9) / 2) - 30, 150, 75)
+  addP2(((window.innerWidth / 4) * 3), ((window.innerHeight * 0.9) / 2) - 30, 150, 75)
   
   window.setInterval(update_soccer, 10);
   window.setInterval(update_p1, 10);
   window.setInterval(update_p2, 10);
   window.setInterval(collisionDetection, 10);
+  window.setInterval(addSpeed, 75);
 
   gameIsInProgress = true;
-  gameIsPaused = false;
+  gameIsPaused = true;
+
+  countdown()
 }
 
 function resetGame(winner) {
-  window.clearInterval(1)
-  window.clearInterval(2)
-  window.clearInterval(3)
-  window.clearInterval(4)
-  window.clearInterval(5)
+  intervals += 5
 
   objects[0].element.remove()
   objects[1].element.remove()
   objects[2].element.remove()
 
   objects = []
+  keyQueue = []
 
   document.getElementById('score1Display').firstChild.textContent = 0
   document.getElementById('score2Display').firstChild.textContent = 0
 
   startScreen(winner)
 
-  gameIsInProgress = true;
+  gameIsInProgress = false;
 }
 
 function addSoccer(x, y, w, h){
@@ -168,27 +170,70 @@ function countdown() {
   let image3 = document.getElementById('image3')
 
   image3.style.visibility = 'visible'
+  image3.style.transform = 'rotate(360deg)'
 
   keyQueue = []
 
   setTimeout(() => {
     image3.style.visibility = 'hidden'
+
     image2.style.visibility = 'visible'
+    image2.style.transform = 'rotate(360deg)'
   }, 1000)
 
   setTimeout(() => {
     image2.style.visibility = 'hidden'
+
     image1.style.visibility = 'visible'
+    image1.style.transform = 'rotate(360deg)'
+
+    objects[1].px = ((window.innerWidth / 4) - 150);
+    objects[1].py = (((window.innerHeight * 0.9) / 2) - 30);
+
+    objects[2].px = ((window.innerWidth / 4) * 3);
+    objects[2].py = (((window.innerHeight * 0.9) / 2) - 30);
+
+    objects[0].px = (mX - 25);
+    objects[0].py = (((window.innerHeight * 0.9) / 2) - 25);
+
+    objects[0].vx = 0;
+    objects[0].vy = 0;
+
+    objects[1].vx = 0;
+    objects[1].vy = 0;
+
+    objects[2].vx = -0.001;
+    objects[2].vy = 0;
   }, 2000)
 
   setTimeout(() => {
     image1.style.visibility = 'hidden'
-  
+
     gameIsPaused = false;
   }, 3000)
+
+  image3.style.transform = null
+  image2.style.transform = null
+  image1.style.transform = null
 }
 
-function collisionDetection() {  
+function addSpeed() {
+  if(gameIsPaused && !gameIsInProgress) return
+
+  if (keyQueue.includes('w')) addForce(objects[1], 0, -1);
+  if (keyQueue.includes('a')) addForce(objects[1], -1, 0);
+  if (keyQueue.includes('s')) addForce(objects[1], 0, 1);
+  if (keyQueue.includes('d')) addForce(objects[1], 1, 0);
+
+  if (keyQueue.includes('arrowup')) addForce(objects[2], 0, -1);
+  if (keyQueue.includes('arrowleft')) addForce(objects[2], -1, 0);
+  if (keyQueue.includes('arrowdown')) addForce(objects[2], 0, 1);
+  if (keyQueue.includes('arrowright')) addForce(objects[2], 1, 0);
+}
+
+function collisionDetection() {
+  if(gameIsPaused && !gameIsInProgress) return
+
   let soccerBallRect = objects[0].element.getBoundingClientRect()
   let player1Rect = objects[1].element.getBoundingClientRect()
   let player2Rect = objects[2].element.getBoundingClientRect()
@@ -247,11 +292,9 @@ function collisionDetection() {
     player1Rect.y < soccerBallRect.y + soccerBallRect.height &&
     player1Rect.height + player1Rect.y > soccerBallRect.y
   ) {
-    objects[0].vx = (objects[1].vx * 3.5) - (objects[0].vx);
-    objects[0].vy = (objects[1].vy * 3.5) - (objects[0].vy);
+    objects[0].vx = ((objects[1].vx * 3.75) - (objects[0].vx * 0.75));
+    objects[0].vy = ((objects[1].vy * 3.75) - (objects[0].vy * 0.75));
 
-    objects[1].vx *= 0.9
-    objects[1].vy *= 0.9
   }
 
   if (player2Rect.x < soccerBallRect.x + soccerBallRect.width &&
@@ -259,50 +302,29 @@ function collisionDetection() {
     player2Rect.y < soccerBallRect.y + soccerBallRect.height &&
     player2Rect.height + player2Rect.y > soccerBallRect.y
   ) {
-    objects[0].vx = (objects[2].vx * 3.5) - (objects[0].vx * 0.75);
-    objects[0].vy = (objects[2].vy * 3.5) - (objects[0].vy * 0.75);
-
-    objects[2].vx *= 0.9
-    objects[2].vy *= 0.9
+    objects[0].vx = ((objects[2].vx * 3.75) - (objects[0].vx * 0.75));
+    objects[0].vy = ((objects[2].vy * 3.75) - (objects[0].vy * 0.75));
   }
 
-  if (soccerBallRect.x < net_1.x + net_1.width &&
+  if ((soccerBallRect.x < net_1.x + net_1.width &&
     soccerBallRect.x + soccerBallRect.width > net_1.x &&
     soccerBallRect.y < net_1.y + net_1.height &&
     soccerBallRect.height + soccerBallRect.y > net_1.y
-  ) {
-    alert("Player 2 Scored! ");
+  ) && !gameIsPaused) {
     scoreP2 += 1;
 
     document.getElementById('score2Display').firstChild.textContent = scoreP2
     
-    objects[1].px = window.innerWidth / 4;
-    objects[1].py = mY;
+    gameIsPaused = true;
 
-    objects[2].px = (window.innerWidth / 4) * 3;
-    objects[2].py = mY;
-
-    objects[0].px = mX;
-    objects[0].py = mY;
-
-    objects[0].px = mX;
-    objects[0].py = mY;
-
-    objects[0].vx = 0;
-    objects[0].vy = 0;
-
-    objects[1].vx = 0;
-    objects[1].vy = 0;
-
-    objects[2].vx = -0.001;
-    objects[2].vy = 0;
+    objects[0].vx = 15;
+    objects[1].vx = 15;
+    objects[2].vx = 15;
 
     if (scoreP1 == (deuce - 1) && scoreP2 == (deuce - 1)) {
       deuce += 1;
 
       alert('Deuce!')
-
-      gameIsPaused = true;
 
       countdown()
     } else if (scoreP2 == deuce)  {
@@ -310,67 +332,47 @@ function collisionDetection() {
       scoreP2 = 0
   
       resetGame(2)
-      confirm('Player 2 won!');
     } else {
-      gameIsPaused = true;
 
       countdown()
     }
   }
 
-  if (soccerBallRect.x < net_2.x + net_2.width &&
+  if ((soccerBallRect.x < net_2.x + net_2.width &&
     soccerBallRect.x + soccerBallRect.width > net_2.x &&
     soccerBallRect.y < net_2.y + net_2.height &&
     soccerBallRect.height + soccerBallRect.y > net_2.y
-  ) {
-    alert("Player 1 Scored! ");
-    
+  ) && !gameIsPaused) {
     scoreP1 += 1;
 
     document.getElementById('score1Display').firstChild.textContent = scoreP1
 
-    objects[1].px = window.innerWidth / 4;
-    objects[1].py = mY;
+    gameIsPaused = true;
 
-    objects[2].px = (window.innerWidth / 4) * 3;
-    objects[2].py = mY;
-
-    objects[0].px = mX;
-    objects[0].py = mY;
-
-    objects[0].vx = 0;
-    objects[0].vy = 0;
-
-    objects[1].vx = 0;
-    objects[1].vy = 0;
-
-    objects[2].vx = -0.001;
-    objects[2].vy = 0;
-
+    objects[0].vx = -15;
+    objects[1].vx = -15;
+    objects[2].vx = -15;
+    
     if (scoreP1 == (deuce - 1) && scoreP2 == (deuce - 1)) {
       deuce += 1;
 
       alert('Deuce!')
-
-      gameIsPaused = true;
 
       countdown()
     } else if (scoreP1 == deuce)  {
       scoreP1 = 0
       scoreP2 = 0
   
-      resetGame(2)
-      confirm('Player 2 won!');
+      resetGame(1)
     } else {
-      gameIsPaused = true;
-
       countdown()
     }
   }
 }
 
 function update_soccer() {
-    
+  if(gameIsPaused && !gameIsInProgress) return
+
   // Apply rebound after collision
   if (objects[0].px < 0) {
     // Left
@@ -491,6 +493,7 @@ function pointInsideRect(x, y, vertices) {
 }
 
 function update_p1(){
+    if(gameIsPaused && !gameIsInProgress) return
 
     // Apply rebound after collision
     if (objects[1].px < 0) {
@@ -530,15 +533,12 @@ function update_p1(){
     objects[1].deg = Math.atan2(objects[1].vy, objects[1].vx) * 180 / Math.PI
     objects[1].element.style.transform = `rotate(${objects[1].deg}deg)`
 
-    if (keyQueue.includes('w')) addForce(objects[1], 0, -2);
-    if (keyQueue.includes('a')) addForce(objects[1], -2, 0);
-    if (keyQueue.includes('s')) addForce(objects[1], 0, 2);
-    if (keyQueue.includes('d')) addForce(objects[1], 2, 0);
-
     t++;
 }
 
-function update_p2(){ 
+function update_p2() {
+  if(gameIsPaused && !gameIsInProgress) return
+
   // Apply rebound after collision
   if (objects[2].px < 0) {
     // Left
@@ -577,11 +577,6 @@ function update_p2(){
   //Update Rotation
   objects[2].deg = Math.atan2(objects[2].vy, objects[2].vx) * 180 / Math.PI
   objects[2].element.style.transform = `rotate(${objects[2].deg}deg)`
-
-  if (keyQueue.includes('arrowup')) addForce(objects[2], 0, -2);
-  if (keyQueue.includes('arrowleft')) addForce(objects[2], -2, 0);
-  if (keyQueue.includes('arrowdown')) addForce(objects[2], 0, 2);
-  if (keyQueue.includes('arrowright')) addForce(objects[2], 2, 0);
   
   t++;
 }

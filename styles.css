@@ -1,3 +1,7 @@
+body {
+    overflow-y: hidden;
+}
+
 p {
     margin: auto;
     text-align: center;
@@ -43,6 +47,12 @@ h1 {
     font-size: 50px;
 }
 
+h2 {
+    -webkit-text-stroke: 2px black;
+    font-family: monospace;
+    font-size: 32px;
+}
+
 #gameField {
     width: 100%;
     height: 90%;
@@ -85,6 +95,7 @@ h1 {
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
+    transition: transform 0.25s;
 }
 
 #p2 {
@@ -101,6 +112,7 @@ h1 {
     height: 100px;
     transform: rotate(180deg);
     /* background-image: url(""); */
+    transition: transform 0.1s;
 }
 
 #net1 {
@@ -152,6 +164,10 @@ h1 {
     color: transparent;
     animation: rainbowAnimation 6s ease-in-out infinite;
     background-size: 400% 100%;
+}
+
+#startButton {
+    
 }
 
 @keyframes rainbowAnimation {
