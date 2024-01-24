@@ -21,6 +21,7 @@ var keyQueue = []
 
 var gameIsInProgress = false;
 var gameIsPaused = true;
+var gameIsInitialized = false;
 
 function startScreen(winner) {
   const startScreen = document.getElementById('startScreen')
@@ -53,12 +54,16 @@ function init() {
   addSoccer((mX - 25), (((window.innerHeight * 0.9) / 2) - 25), 50, 50)
   addP1(((window.innerWidth / 4) - 150), ((window.innerHeight * 0.9) / 2) - 30, 150, 75)
   addP2(((window.innerWidth / 4) * 3), ((window.innerHeight * 0.9) / 2) - 30, 150, 75)
-  
-  window.setInterval(update_soccer, 10);
-  window.setInterval(update_p1, 10);
-  window.setInterval(update_p2, 10);
-  window.setInterval(collisionDetection, 10);
-  window.setInterval(addSpeed, 75);
+
+  if(!gameIsInitialized) {
+    window.setInterval(update_soccer, 10);
+    window.setInterval(update_p1, 10);
+    window.setInterval(update_p2, 10);
+    window.setInterval(collisionDetection, 10);
+    window.setInterval(addSpeed, 75);
+
+    gameIsInitialized = true;
+  }
 
   gameIsInProgress = true;
   gameIsPaused = true;
@@ -67,8 +72,6 @@ function init() {
 }
 
 function resetGame(winner) {
-  intervals += 5
-
   objects[0].element.remove()
   objects[1].element.remove()
   objects[2].element.remove()
@@ -204,6 +207,8 @@ function countdown() {
 
     objects[2].vx = -0.001;
     objects[2].vy = 0;
+
+    document.getElementById('gameField').style.animation = null
   }, 2000)
 
   setTimeout(() => {
@@ -244,7 +249,7 @@ function collisionDetection() {
   let net_1 = document.getElementById("net1").getBoundingClientRect();
   let net_2 = document.getElementById('net2').getBoundingClientRect();
 
-  if (isCollision(player1, player2)) {
+  if (isCollision(player1, player2) && !gameIsPaused) {
     const overlapX = (player1Rect.width + player2Rect.width) * 0.5 - Math.abs(player1Rect.x - player2Rect.x);
     const overlapY = (player1Rect.height + player2Rect.height) * 0.5 - Math.abs(player1Rect.y - player2Rect.y);
 
@@ -312,14 +317,15 @@ function collisionDetection() {
     soccerBallRect.height + soccerBallRect.y > net_1.y
   ) && !gameIsPaused) {
     scoreP2 += 1;
-
-    document.getElementById('score2Display').firstChild.textContent = scoreP2
     
     gameIsPaused = true;
 
     objects[0].vx = 15;
     objects[1].vx = 15;
     objects[2].vx = 15;
+
+    document.getElementById('score2Display').firstChild.textContent = scoreP2
+    document.getElementById('gameField').style.animation = 'shake 1s'
 
     if (scoreP1 == (deuce - 1) && scoreP2 == (deuce - 1)) {
       deuce += 1;
@@ -345,13 +351,14 @@ function collisionDetection() {
   ) && !gameIsPaused) {
     scoreP1 += 1;
 
-    document.getElementById('score1Display').firstChild.textContent = scoreP1
-
     gameIsPaused = true;
 
     objects[0].vx = -15;
     objects[1].vx = -15;
     objects[2].vx = -15;
+
+    document.getElementById('score1Display').firstChild.textContent = scoreP1
+    document.getElementById('gameField').style.animation = 'shake 1s'
     
     if (scoreP1 == (deuce - 1) && scoreP2 == (deuce - 1)) {
       deuce += 1;
